@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { CacheService } from '../cache/cache.service';
 import { User } from '../database/models/user.model';
@@ -7,6 +7,7 @@ import { Op } from 'sequelize';
 import { col, fn, literal } from 'sequelize';
 import { Event } from '../database/models/event.model';
 import { Subscription } from '../database/models/subscription.model';
+import { buildResponse } from 'src/common/utils/response.util';
 
 @Injectable()
 export class AnalyticsService {
@@ -55,7 +56,11 @@ export class AnalyticsService {
 
     await this.cacheService.set(cacheKey, revenueData, 600);
 
-    return revenueData;
+    return buildResponse(
+      HttpStatus.OK,
+      'Revenue analytics fetched',
+      revenueData,
+    );
   }
 
   async getOverview() {
@@ -108,7 +113,7 @@ export class AnalyticsService {
     };
 
     await this.cacheService.set(cacheKey, overviewData, 300);
-    return overviewData;
+    return buildResponse(HttpStatus.OK, 'Overview data fetched', overviewData);
   }
 
   async getRetention(month: string) {
@@ -132,7 +137,7 @@ export class AnalyticsService {
     });
 
     await this.cacheService.set(cacheKey, result, 3600);
-    return result;
+    return buildResponse(HttpStatus.OK, 'Retention data fetched', result);
   }
 
   async getTopEvents(limit: number = 10, from?: string, to?: string) {
@@ -161,7 +166,7 @@ export class AnalyticsService {
     });
 
     await this.cacheService.set(cacheKey, topEvents, 300);
-    return topEvents;
+    return buildResponse(HttpStatus.OK, 'Top events fetched', topEvents);
   }
 
   async getUserGrowth(
@@ -200,7 +205,7 @@ export class AnalyticsService {
     });
 
     await this.cacheService.set(cacheKey, growthData, 600);
-    return growthData;
+    return buildResponse(HttpStatus.OK, 'User growth data fetched', growthData);
   }
 
   async getUsersByCountry() {
@@ -229,7 +234,7 @@ export class AnalyticsService {
     });
 
     await this.cacheService.set(cacheKey, countryStats, 3600);
-    return countryStats;
+    return buildResponse(HttpStatus.OK, 'Country stats fetched', countryStats);
   }
 
   async getSubscriptionBreakdown() {
@@ -265,6 +270,10 @@ export class AnalyticsService {
     }));
 
     await this.cacheService.set(cacheKey, result, 3600);
-    return result;
+    return buildResponse(
+      HttpStatus.OK,
+      'Subscription breakdown fetched',
+      result,
+    );
   }
 }

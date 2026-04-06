@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  HttpStatus,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { CacheService } from '../cache/cache.service';
 import { User } from '../database/models/user.model';
@@ -6,6 +11,7 @@ import { Subscription } from '../database/models/subscription.model';
 import { Transaction } from '../database/models/transaction.model';
 import { Event } from '../database/models/event.model';
 import { Op } from 'sequelize';
+import { buildResponse } from 'src/common/utils/response.util';
 @Injectable()
 export class ReportsService {
   private readonly logger = new Logger(ReportsService.name);
@@ -53,7 +59,11 @@ export class ReportsService {
 
     await this.cacheService.set(cacheKey, userActivity, 3600);
 
-    return userActivity;
+    return buildResponse(
+      200,
+      `Activity for User ${userId} fetched successfully`,
+      userActivity,
+    );
   }
 
   async getRevenueSummary(from?: string, to?: string) {
@@ -119,7 +129,7 @@ export class ReportsService {
     };
 
     await this.cacheService.set(cacheKey, summary, 3600);
-    return summary;
+    return buildResponse(HttpStatus.OK, 'Revenue summary fetched', summary);
   }
 
   async getChurnReport(month: string) {
@@ -159,6 +169,6 @@ export class ReportsService {
     };
 
     await this.cacheService.set(cacheKey, report, 3600);
-    return report;
+    return buildResponse(HttpStatus.OK, 'Churn report fetched', report);
   }
 }

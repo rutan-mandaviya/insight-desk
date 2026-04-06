@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { faker } from '@faker-js/faker';
 import { User } from '../database/models/user.model';
@@ -6,6 +6,7 @@ import { Subscription } from '../database/models/subscription.model';
 import { Transaction } from '../database/models/transaction.model';
 import { Event } from '../database/models/event.model';
 import { CacheService } from '../cache/cache.service';
+import { buildResponse } from 'src/common/utils/response.util';
 
 @Injectable()
 export class SeedService {
@@ -102,6 +103,11 @@ export class SeedService {
     await this.cacheService.delByPattern('analytics:*');
     await this.cacheService.delByPattern('reports:*');
 
-    return { message: 'Database seeded successfully & Cache Cleared!' };
+    return buildResponse(HttpStatus.OK, 'Database seeded successfully', {
+      users: users.length,
+      subscriptions: subscriptionsData.length,
+      transactions: transactionsData.length,
+      events: eventsData.length,
+    });
   }
 }
